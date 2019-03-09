@@ -65,7 +65,8 @@ RUN set -x \
         && apt-get purge -y build-essential wget libpcre3-dev zlib1g-dev \
         && ln -sf /dev/stdout /var/log/nginx/access.log \
         && ln -sf /dev/stderr /var/log/nginx/error.log \
-        && rm -rf /tmp/*.tar.gz /tmp/nginx-* /tmp/openssl-*
+        && rm -rf /tmp/*.tar.gz /tmp/nginx-* /tmp/openssl-* \
+        && apt-get -f -y autoremove
 
 EXPOSE 80 443
 

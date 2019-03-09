@@ -9,12 +9,9 @@ RUN set -x \
 	&& apt-get update \
 	&& apt-get install --no-install-recommends --no-install-suggests -y \
 		gnupg1 apt-transport-https ca-certificates libpcre3 zlib1g \
-		build-essential wget libpcre3-dev zlib1g-dev
-RUN set -x \
+		build-essential wget libpcre3-dev zlib1g-dev \
 	&& wget -O - https://www.openssl.org/source/openssl-"$OPENSSL_VERSION".tar.gz | tar -xzf - -C /tmp  \
-        && wget -O - http://nginx.org/download/nginx-"$NGINX_VERSION".tar.gz | tar -xzf - -C /tmp
-
-RUN set -x \
+        && wget -O - http://nginx.org/download/nginx-"$NGINX_VERSION".tar.gz | tar -xzf - -C /tmp \
         && cd /tmp/nginx-"$NGINX_VERSION" \
         && ./configure \
 		--prefix=/etc/nginx \
@@ -57,20 +54,18 @@ RUN set -x \
 		--with-openssl=/tmp/openssl-"$OPENSSL_VERSION" --with-openssl-opt=enable-weak-ssl-ciphers \
 		--with-cc-opt='-O2 -g -pipe -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -m64 -mtune=generic' \
 	&& \
-	make
-
-RUN set -x \
+	make \
         && cd /tmp/nginx-"$NGINX_VERSION" \
         && groupadd -r nginx \
         && useradd -r -g nginx nginx \
 	&& make install \
 	&& mkdir /var/cache/nginx \
         && chown nginx:root /var/cache/nginx \
-        && chown -R nginx:root /var/log/nginx
-
-# forward request and error logs to docker log collector
-RUN ln -sf /dev/stdout /var/log/nginx/access.log \
-	&& ln -sf /dev/stderr /var/log/nginx/error.log
+        && chown -R nginx:root /var/log/nginx \
+        && apt-get purge -y build-essential wget libpcre3-dev zlib1g-dev \
+        && ln -sf /dev/stdout /var/log/nginx/access.log \
+        && ln -sf /dev/stderr /var/log/nginx/error.log \
+        && rm -rf /tmp/*.tar.gz /tmp/nginx-* /tmp/openssl-*
 
 EXPOSE 80 443
 
